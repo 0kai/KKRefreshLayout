@@ -10,4 +10,8 @@ public interface IFooterView {
     View getView();
 
     int getSize();
+
+    void showLoading();
+
+    void showNoMore();
 }
