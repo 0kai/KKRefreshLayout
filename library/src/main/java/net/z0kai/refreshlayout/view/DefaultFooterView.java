@@ -20,7 +20,7 @@ public class DefaultFooterView extends RelativeLayout implements IFooterView {
 
     public DefaultFooterView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        LayoutInflater.from(getContext()).inflate(R.layout.default_footer_view, this);
+        LayoutInflater.from(getContext()).inflate(R.layout.kk_rl_default_footer_view, this);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         setLayoutParams(lp);
     }

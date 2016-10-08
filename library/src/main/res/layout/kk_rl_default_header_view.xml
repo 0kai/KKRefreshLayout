@@ -5,7 +5,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp">
+        android:layout_height="60dp">
 
         <ImageView
             android:id="@+id/refreshIv"
@@ -13,8 +13,8 @@
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
-            android:layout_margin="20dp"
-            android:src="@drawable/bg_circle"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/kk_rl_bg_circle"
             />
 
     </RelativeLayout>

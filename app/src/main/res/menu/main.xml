@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_start_refresh"
+        android:title="Start Refresh"
+        />
+    <item
+        android:id="@+id/menu_start_load_more"
+        android:title="Start LoadMore"
+        />
+    <item
+        android:id="@+id/menu_refresh_enable"
+        android:title="Refresh Enable"
+        />
+    <item
+        android:id="@+id/menu_refresh_disable"
+        android:title="Refresh Disable"
+        />
+    <item
+        android:id="@+id/menu_load_more_enable"
+        android:title="LoadMore Enable"
+        />
+    <item
+        android:id="@+id/menu_load_more_disable"
+        android:title="LoadMore Disable"
+        />
+</menu>

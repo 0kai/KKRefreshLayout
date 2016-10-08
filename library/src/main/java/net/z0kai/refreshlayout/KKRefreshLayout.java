@@ -25,9 +25,12 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         NestedScrollingChild {
 
     private final static String TAG = KKRefreshLayout.class.getSimpleName();
+    private final static long MIN_REFRESH_TIME = 500;
 
     private boolean isRefreshing = false;
     private boolean isLoadingMore = false;
+    private boolean isRefreshEnable = true;
+    private boolean isLoadMoreEnable = false;
 
     private final NestedScrollingParentHelper mNestedScrollingParentHelper;
     private final NestedScrollingChildHelper mNestedScrollingChildHelper;
@@ -39,9 +42,15 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     private IFooterView mFooterView;
 
     private KKRefreshListener mListener;
-    private DecelerateInterpolator mDecelerateInterpolator;
 
     private float mOffset;
+    private long mStartRefreshTime;
+    private Runnable mMoveBackRunnable = new Runnable() {
+        @Override
+        public void run() {
+            smoothScrollBack(mOffset, 0);
+        }
+    };
 
     public KKRefreshLayout(Context context) {
         this(context, null);
@@ -52,13 +61,11 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         mNestedScrollingParentHelper = new NestedScrollingParentHelper(this);
         mNestedScrollingChildHelper = new NestedScrollingChildHelper(this);
 
-        mHeaderView = RefreshLayoutConfig.getHeaderViewProvider().get(context);
+        mHeaderView = KKRefreshLayoutConfig.getHeaderViewProvider().get(context);
         addView(mHeaderView.getView());
 
-        mFooterView = RefreshLayoutConfig.getFooterViewProvider().get(context);
+        mFooterView = KKRefreshLayoutConfig.getFooterViewProvider().get(context);
         addView(mFooterView.getView());
-
-        mDecelerateInterpolator = new DecelerateInterpolator();
     }
 
     @Override
@@ -75,9 +82,57 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         layoutChildren();
     }
 
+    public void startRefresh() {
+        if (isRefreshing || !isRefreshEnable) {
+            return;
+        }
+        mStartRefreshTime = System.currentTimeMillis();
+        isRefreshing = true;
+        mHeaderView.startRefresh();
+
+        ValueAnimator valueAnimator = ObjectAnimator.ofFloat(0, mHeaderView.getRefreshingSize()).setDuration(300);
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float value = (float) animation.getAnimatedValue();
+                mOffset = value;
+                layoutChildren();
+                if (value == mHeaderView.getRefreshingSize() && mListener != null) {
+                    mListener.onRefresh();
+                }
+            }
+        });
+        valueAnimator.setInterpolator(new DecelerateInterpolator());
+        valueAnimator.setStartDelay(100);
+        valueAnimator.start();
+    }
+
+    public void startLoadMore() {
+        if (isLoadingMore || !isLoadMoreEnable) {
+            return;
+        }
+        isLoadingMore = true;
+        if (mListener != null) {
+            mListener.onLoadMore();
+        }
+    }
+
+    public void setRefreshEnable(boolean enable) {
+        isRefreshEnable = enable;
+    }
+
+    public void setLoadMoreEnable(boolean enable) {
+        isLoadMoreEnable = enable;
+    }
+
     public void finishRefresh() {
         if (isRefreshing) {
-            smoothScrollBack(mOffset, 0);
+            long refreshTime = System.currentTimeMillis() - mStartRefreshTime;
+            if (refreshTime < MIN_REFRESH_TIME) {
+                postDelayed(mMoveBackRunnable, MIN_REFRESH_TIME - refreshTime);
+            } else {
+                mMoveBackRunnable.run();
+            }
         }
     }
 
@@ -164,6 +219,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
             if (mListener != null) {
                 mListener.onRefresh();
             }
+            mStartRefreshTime = System.currentTimeMillis();
             mHeaderView.startRefresh();
             isRefreshing = true;
             smoothScrollBack(overScrollTop, mHeaderView.getRefreshingSize());
@@ -195,13 +251,25 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         valueAnimator.start();
     }
 
+    private void offsetUp(int dy) {
+        if (mOffset < getHeight() / 3) {
+            dy /= 2;
+        } else if (mOffset < getHeight() / 2){
+            dy /= 3;
+        } else {
+            dy /= 4;
+        }
+        mOffset += dy;
+    }
+
     // NestedScrollingParent
     @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
         Log.e(TAG, "onStartNestedScroll, " + nestedScrollAxes);
 //        return super.onStartNestedScroll(child, target, nestedScrollAxes);
         return isEnabled()
-//                && !isRefreshing && !isLoadingMore
+                && !isRefreshing && !isLoadingMore
+                && (isRefreshEnable || isLoadMoreEnable)
                 && (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
@@ -272,12 +340,13 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         // 'offset in window 'functionality to see if we have been moved from the event.
         // This is a decent indication of whether we should take over the event stream or not.
         final int dy = dyUnconsumed + mParentOffsetInWindow[1];
-        if (dy < 0 && !canChildScrollUp()) {
-            mOffset += Math.abs(dy);
+        if (dy < 0 && !canChildScrollUp() && isRefreshEnable) {
+//            mOffset += Math.abs(dy);
+            offsetUp(-dy);
             layoutChildren();
         }
 
-        if (dy > 0 && !canChildScrollDown()) {
+        if (dy > 0 && !canChildScrollDown() && isLoadMoreEnable) {
             if (!isLoadingMore) {
                 isLoadingMore = true;
                 if (mListener != null) {

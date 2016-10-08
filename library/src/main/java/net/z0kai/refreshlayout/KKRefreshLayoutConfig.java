@@ -11,7 +11,7 @@ import net.z0kai.refreshlayout.view.IHeaderView;
  * Created by Z_0Kai on 16/9/29.
  */
 
-public class RefreshLayoutConfig {
+public class KKRefreshLayoutConfig {
     private static HeaderViewProvider headerViewProvider;
     private static FooterViewProvider footerViewProvider;
 

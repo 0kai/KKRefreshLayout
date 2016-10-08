@@ -40,7 +40,7 @@ public class DefaultHeaderView extends RelativeLayout implements IHeaderView {
 
     public DefaultHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        LayoutInflater.from(getContext()).inflate(R.layout.default_header_view, this);
+        LayoutInflater.from(getContext()).inflate(R.layout.kk_rl_default_header_view, this);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         setLayoutParams(lp);
 
@@ -114,10 +114,12 @@ public class DefaultHeaderView extends RelativeLayout implements IHeaderView {
             animatorY.setRepeatCount(INFINITE);
             mFlashAnimatorSet = new AnimatorSet();
             mFlashAnimatorSet.playTogether(animatorX, animatorY);
-            mFlashAnimatorSet.setDuration(400);
+            mFlashAnimatorSet.setDuration(500);
         }
         mFlashAnimatorSet.setStartDelay(300);
-        mFlashAnimatorSet.start();
+        if (!mFlashAnimatorSet.isStarted()) {
+            mFlashAnimatorSet.start();
+        }
     }
 
     private void reset() {
