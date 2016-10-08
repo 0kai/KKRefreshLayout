@@ -9,7 +9,6 @@ import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -45,6 +44,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     private float mOffset;
     private long mStartRefreshTime;
+    private boolean isRefreshBeforeLayout;
     private Runnable mMoveBackRunnable = new Runnable() {
         @Override
         public void run() {
@@ -80,10 +80,18 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
             return;
         }
         layoutChildren();
+        if (isRefreshBeforeLayout) {
+            isRefreshBeforeLayout = false;
+            startRefresh();
+        }
     }
 
     public void startRefresh() {
         if (isRefreshing || !isRefreshEnable) {
+            return;
+        }
+        if (getMeasuredWidth() == 0) {
+            isRefreshBeforeLayout = true;
             return;
         }
         mStartRefreshTime = System.currentTimeMillis();
@@ -151,7 +159,6 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         int paddingLeft = getPaddingLeft();
         int paddingTop = getPaddingTop();
         int offset = (int) mOffset;
-//        int offset = (int) (mDecelerateInterpolator.getInterpolation(mOffset/getHeight()) * getHeight());
         int left, right, top, bottom;
 
         if (mHeaderView != null) {
@@ -265,11 +272,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     // NestedScrollingParent
     @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
-        Log.e(TAG, "onStartNestedScroll, " + nestedScrollAxes);
 //        return super.onStartNestedScroll(child, target, nestedScrollAxes);
         return isEnabled()
-                && !isRefreshing && !isLoadingMore
-                && (isRefreshEnable || isLoadMoreEnable)
+                && !isRefreshing
                 && (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
@@ -279,12 +284,10 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes);
         // Dispatch up to the nested parent
         startNestedScroll(axes & ViewCompat.SCROLL_AXIS_VERTICAL);
-        Log.e(TAG, "onNestedScrollAccepted, " + axes);
     }
 
     @Override
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-        Log.e(TAG, "onNestedPreScroll, " + "dx:" + dx + ", dy:" + dy + ", consumed:" + consumed);
         // If we are in the middle of consuming, a scroll, then we want to move the spinner back up
         // before allowing the list to scroll
         if (dy > 0 && mOffset > 0) {
@@ -308,19 +311,19 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     @Override
     public int getNestedScrollAxes() {
-        Log.e(TAG, "getNestedScrollAxes");
         return mNestedScrollingParentHelper.getNestedScrollAxes();
     }
 
     @Override
     public void onStopNestedScroll(View target) {
-        Log.e(TAG, "onStopNestedScroll");
         mNestedScrollingParentHelper.onStopNestedScroll(target);
         // Finish the spinner for nested scrolling if we ever consumed any
         // unconsumed nested scroll
         if (mOffset > 0) {
             finishSpinner(mOffset);
 //            mTotalUnconsumed = 0;
+        } else {
+            mHeaderView.stopRefresh();
         }
         // Dispatch up our nested parent
         stopNestedScroll();
@@ -329,8 +332,6 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     @Override
     public void onNestedScroll(final View target, final int dxConsumed, final int dyConsumed,
                                final int dxUnconsumed, final int dyUnconsumed) {
-        Log.e(TAG, "onNestedScroll, " + "dxConsumed:" + dxConsumed + ", dyConsumed:" + dyConsumed
-                + ", dxUnconsumed:" + dxUnconsumed + ", dyUnconsumed:" + dyUnconsumed);
         // Dispatch up to the nested parent first
         dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, mParentOffsetInWindow);
 
@@ -341,71 +342,78 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         // This is a decent indication of whether we should take over the event stream or not.
         final int dy = dyUnconsumed + mParentOffsetInWindow[1];
         if (dy < 0 && !canChildScrollUp() && isRefreshEnable) {
-//            mOffset += Math.abs(dy);
             offsetUp(-dy);
             layoutChildren();
         }
 
         if (dy > 0 && !canChildScrollDown() && isLoadMoreEnable) {
             if (!isLoadingMore) {
+                mFooterView.showLoading();
                 isLoadingMore = true;
                 if (mListener != null) {
                     mListener.onLoadMore();
                 }
             }
-            mOffset -= Math.abs(dy);
+            mOffset -= dy;
             if (-mOffset > mFooterView.getSize()) {
                 mOffset = -mFooterView.getSize();
+            }
+            layoutChildren();
+        }
+
+        if (dy > 0 && canChildScrollUp() && !isLoadMoreEnable) {
+            mFooterView.showNoMore();
+            mOffset -= dy;
+            if (-mOffset > mFooterView.getSize()) {
+                mOffset = -mFooterView.getSize();
+            }
+            layoutChildren();
+        }
+
+        if (dyConsumed < 0 && mOffset < 0) {
+            mOffset -= dyConsumed;
+            if (mOffset > 0) {
+                mOffset = 0;
             }
             layoutChildren();
         }
     }
 
     // NestedScrollingChild
-
     @Override
     public void setNestedScrollingEnabled(boolean enabled) {
-        Log.e(TAG, "setNestedScrollingEnabled");
         mNestedScrollingChildHelper.setNestedScrollingEnabled(enabled);
     }
 
     @Override
     public boolean isNestedScrollingEnabled() {
-        Log.e(TAG, "isNestedScrollingEnabled");
         return mNestedScrollingChildHelper.isNestedScrollingEnabled();
     }
 
     @Override
     public boolean startNestedScroll(int axes) {
-        Log.e(TAG, "startNestedScroll, " + axes);
         return mNestedScrollingChildHelper.startNestedScroll(axes);
     }
 
     @Override
     public void stopNestedScroll() {
-        Log.e(TAG, "stopNestedScroll");
         mNestedScrollingChildHelper.stopNestedScroll();
     }
 
     @Override
     public boolean hasNestedScrollingParent() {
-        Log.e(TAG, "hasNestedScrollingParent");
         return mNestedScrollingChildHelper.hasNestedScrollingParent();
     }
 
     @Override
     public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
                                         int dyUnconsumed, int[] offsetInWindow) {
-        Log.e(TAG, "dispatchNestedScroll, " + "dxConsumed:" + dxConsumed + ", dyConsumed:" + dyConsumed
-                + ", dxUnconsumed:" + dxUnconsumed + ", dyUnconsumed:" + dyUnconsumed
-                + ", offsetInWindow:" + offsetInWindow);
         return mNestedScrollingChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed,
                 dxUnconsumed, dyUnconsumed, offsetInWindow);
     }
 
     @Override
     public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
-        Log.e(TAG, "dispatchNestedPreScroll," + "dx:" + dx + ", dy:" + dy);
         return mNestedScrollingChildHelper.dispatchNestedPreScroll(
                 dx, dy, consumed, offsetInWindow);
     }
@@ -413,20 +421,17 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     @Override
     public boolean onNestedPreFling(View target, float velocityX,
                                     float velocityY) {
-        Log.e(TAG, "onNestedPreFling," + "velocityX:" + velocityX + ", velocityY:" + velocityY);
         return dispatchNestedPreFling(velocityX, velocityY);
     }
 
     @Override
     public boolean onNestedFling(View target, float velocityX, float velocityY,
                                  boolean consumed) {
-        Log.e(TAG, "onNestedFling," + "consumed:" + consumed);
         return dispatchNestedFling(velocityX, velocityY, consumed);
     }
 
     @Override
     public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
-        Log.e(TAG, "dispatchNestedFling, " + "consumed:" + consumed);
         return super.dispatchNestedFling(velocityX, velocityY, consumed);
     }
 
