@@ -123,6 +123,9 @@ public class DefaultHeaderView extends RelativeLayout implements IHeaderView {
     }
 
     private void reset() {
+        if (mStatus == STATUS_NORMAL) {
+            return;
+        }
         mStatus = STATUS_NORMAL;
         mRefreshIv.setScaleX(1);
         mRefreshIv.setScaleY(1);

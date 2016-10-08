@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 }, 2000);
             }
         });
+        refreshLayout.startRefresh();
     }
 
     @Override
