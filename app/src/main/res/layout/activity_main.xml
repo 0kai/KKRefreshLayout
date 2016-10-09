@@ -12,12 +12,27 @@
         android:layout_height="match_parent"
         android:background="#ffffff">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#ffffff"/>
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/rcvBtn"
+                android:text="Recycler View"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+            <Button
+                android:id="@+id/lvBtn"
+                android:text="List View"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+
+        </LinearLayout>
 
     </net.z0kai.refreshlayout.KKRefreshLayout>
-
 </RelativeLayout>

@@ -1,22 +1,29 @@
 package net.z0kai.kkrefreshlayout;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.View;
-import android.view.View.OnClickListener;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 
 import net.z0kai.refreshlayout.KKRefreshLayout;
 import net.z0kai.refreshlayout.KKRefreshListener;
 
-public class MainActivity extends BaseActivity implements OnClickListener {
+public class RecyclerViewActivity extends BaseActivity {
+
+    private RecyclerView recyclerView;
+    private TestAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_recycler_view);
 
         refreshLayout = (KKRefreshLayout) findViewById(R.id.refreshLayout);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new TestAdapter(this);
+        recyclerView.setAdapter(adapter);
 
         refreshLayout.setLoadMoreEnable(true);
         refreshLayout.setRefreshListener(new KKRefreshListener() {
@@ -27,6 +34,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     public void run() {
                         refreshLayout.finishRefresh();
                         refreshLayout.finishLoadMore();
+                        adapter.refresh();
                     }
                 }, 2000);
             }
@@ -38,27 +46,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     public void run() {
                         refreshLayout.finishLoadMore();
                         refreshLayout.finishRefresh();
+                        adapter.addData();
                     }
                 }, 2000);
             }
         });
-        bindEvent();
-    }
-
-    private void bindEvent() {
-        findViewById(R.id.rcvBtn).setOnClickListener(this);
-        findViewById(R.id.lvBtn).setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.rcvBtn:
-                startActivity(new Intent(this, RecyclerViewActivity.class));
-                break;
-            case R.id.lvBtn:
-                startActivity(new Intent(this, ListViewActivity.class));
-                break;
-        }
+        refreshLayout.startRefresh();
     }
 }
