@@ -202,13 +202,8 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                 top = paddingTop + offset;
                 bottom = top + getHeight() - offset;
             } else {
-                if (mNestedScrollInProgress) {
-                    top = paddingTop;
-                    bottom = top + getHeight() + offset;
-                } else {
-                    top = paddingTop + offset;
-                    bottom = top + getHeight();
-                }
+                top = paddingTop;
+                bottom = top + getHeight() + offset;
             }
             view.layout(left, top, right, bottom);
         }
@@ -296,7 +291,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         }
 
         // pull up
-        if (dy > 0 && isLoadMoreEnable && !isRefreshing && (!canChildScrollDown() || mOffset < 0)) {
+        if (dy > 0 && isLoadMoreEnable && !isRefreshing && !canChildScrollDown()) {
             if (!isLoadingMore) {
                 mFooterView.showLoading();
                 isLoadingMore = true;
@@ -351,17 +346,38 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
             case MotionEvent.ACTION_MOVE:
                 float currentY = ev.getY();
-                float dy = currentY - mTouchY;
-                if (Math.abs(dy) < mTouchSlop) {
+                int dy = (int) (currentY - mTouchY);
+                if (mOffset != 0) {
+
+                } else if (Math.abs(dy) < mTouchSlop) {
+                    break;
                 } else if (dy > 0 && !canChildScrollUp() && isRefreshEnable) {
-                    return true;
+//                    return true;
                 } else if (dy < 0 && !canChildScrollDown()) {
-                    return true;
+//                    return true;
                 } else if (mOffset != 0) {
-                    return true;
+//                    return true;
                 } else {
                     mTouchY = currentY;
+                    break;
                 }
+                mCurrentY = mTouchY = ev.getY();
+                dy = -dy;
+                moveChild(dy, dy);
+
+                // pull down, back
+                if (dy > 0 && mOffset > 0) {
+                    if (dy > mOffset) {
+                        mOffset = 0;
+                    } else {
+                        mOffset -= dy;
+                    }
+                    layoutChildren();
+                }
+                break;
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                onStopNestedScroll(mTarget);
                 break;
         }
         return super.onInterceptTouchEvent(ev);
