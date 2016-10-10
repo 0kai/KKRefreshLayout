@@ -161,7 +161,10 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         if(isLoadingMore) {
             isLoadingMore = false;
             mOffset = 0;
-            layoutChildren();
+//            layoutChildren();
+            if (mTarget != null) {
+                mTarget.requestLayout();
+            }
         }
     }
 
@@ -327,6 +330,20 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     }
 
+    private void actionMove(int dy) {
+        moveChild(dy, dy);
+
+        // pull down, back
+        if (dy > 0 && mOffset > 0) {
+            if (dy > mOffset) {
+                mOffset = 0;
+            } else {
+                mOffset -= dy;
+            }
+            layoutChildren();
+        }
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
 
@@ -334,8 +351,6 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
             // Fail fast if we're not in a state where a swipe is possible
             return false;
         }
-
-        ensureTarget();
 
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
@@ -361,19 +376,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                     mTouchY = currentY;
                     break;
                 }
-                mCurrentY = mTouchY = ev.getY();
+                mCurrentY = mTouchY = currentY;
                 dy = -dy;
-                moveChild(dy, dy);
-
-                // pull down, back
-                if (dy > 0 && mOffset > 0) {
-                    if (dy > mOffset) {
-                        mOffset = 0;
-                    } else {
-                        mOffset -= dy;
-                    }
-                    layoutChildren();
-                }
+                actionMove(dy);
                 break;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
@@ -386,37 +391,31 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if (!isEnabled() || isRefreshing || mNestedScrollInProgress) {
+        if (!isEnabled() || isRefreshing || mNestedScrollInProgress || canChildScrollUp()) {
             // Fail fast if we're not in a state where a swipe is possible
             return super.onTouchEvent(ev);
         }
 
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mTouchY = ev.getY();
+                mCurrentY = mTouchY;
+                break;
+
             case MotionEvent.ACTION_MOVE:
                 mCurrentY = ev.getY();
                 int dy = - (int) (mCurrentY - mTouchY);
                 mTouchY = mCurrentY;
-                moveChild(dy, dy);
-
-                // pull down, back
-                if (dy > 0 && mOffset > 0) {
-                    if (dy > mOffset) {
-                        mOffset = 0;
-                    } else {
-                        mOffset -= dy;
-                    }
-                    layoutChildren();
-                }
-
-                return true;
+                actionMove(dy);
+                break;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
                 onStopNestedScroll(mTarget);
-                return true;
+                break;
         }
 
-        return super.onTouchEvent(ev);
+        return true;
     }
 
     @Override
