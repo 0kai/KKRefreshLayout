@@ -8,7 +8,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 24
         versionCode 1
-        versionName "0.0.1"
+        versionName "0.0.2"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -19,15 +19,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             // 这一段用来重命名aar包，并放置在3rdparty-jas根目录，不同module使用相同，不需要修改
-            libraryVariants.all { variant ->
-                variant.outputs.each { output ->
-                    def outputFile = output.outputFile
-                    if (outputFile != null && outputFile.name.endsWith('release.aar')) {
-                        def fileName = "KKRefreshLayout-${defaultConfig.versionName}.aar"
-                        output.outputFile = new File(getRootDir().getParent() + "/3rdparty-jars/libraries/", fileName)
-                    }
-                }
-            }
+//            libraryVariants.all { variant ->
+//                variant.outputs.each { output ->
+//                    def outputFile = output.outputFile
+//                    if (outputFile != null && outputFile.name.endsWith('release.aar')) {
+//                        def fileName = "KKRefreshLayout-${defaultConfig.versionName}.aar"
+//                        output.outputFile = new File(getRootDir().getParent() + "/3rdparty-jars/libraries/", fileName)
+//                    }
+//                }
+//            }
         }
     }
 }
