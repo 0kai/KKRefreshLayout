@@ -253,9 +253,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     }
 
     private void smoothScrollBack(final float fromOffset, float toOffset) {
-        if (fromOffset <= toOffset) {
-            return;
-        }
+//        if (fromOffset <= toOffset) {
+//            return;
+//        }
         ValueAnimator valueAnimator = ObjectAnimator.ofFloat(fromOffset, toOffset).setDuration(300);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -496,6 +496,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 //            mTotalUnconsumed = 0;
         } else {
             mHeaderView.stopRefresh();
+        }
+        if (mOffset < 0 && !isLoadMoreEnable) {
+            smoothScrollBack(mOffset, 0);
         }
         // Dispatch up our nested parent
         stopNestedScroll();

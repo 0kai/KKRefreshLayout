@@ -3,24 +3,30 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ProgressBar
-        android:id="@+id/loadMorePb"
-        android:layout_width="30dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:layout_margin="5dp"
         android:layout_centerInParent="true"
-        style="@android:style/Widget.Holo.ProgressBar"
-        />
+        android:gravity="center"
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/noMoreTv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="@string/kk_rl_no_more_data"
-        android:textColor="#696969"
-        android:textSize="12sp"
-        android:visibility="invisible"
-        />
+        <ProgressBar
+            android:id="@+id/loadingPb"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_margin="5dp"
+            style="@android:style/Widget.Holo.ProgressBar"
+            />
+
+        <TextView
+            android:id="@+id/infoTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/kk_rl_loading_more"
+            android:textColor="#696969"
+            android:textSize="12sp"
+            />
+
+    </LinearLayout>
 
 </RelativeLayout>

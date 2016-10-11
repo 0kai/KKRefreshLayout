@@ -17,8 +17,8 @@ import net.z0kai.refreshlayout.R;
 
 public class DefaultFooterView extends RelativeLayout implements IFooterView {
 
-    private ProgressBar loadMorePb;
-    private TextView noMoreTv;
+    private ProgressBar loadingPb;
+    private TextView infoTv;
 
     public DefaultFooterView(Context context) {
         this(context, null);
@@ -30,8 +30,8 @@ public class DefaultFooterView extends RelativeLayout implements IFooterView {
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         setLayoutParams(lp);
 
-        loadMorePb = (ProgressBar) findViewById(R.id.loadMorePb);
-        noMoreTv = (TextView) findViewById(R.id.noMoreTv);
+        loadingPb = (ProgressBar) findViewById(R.id.loadingPb);
+        infoTv = (TextView) findViewById(R.id.infoTv);
     }
 
     @Override
@@ -46,13 +46,19 @@ public class DefaultFooterView extends RelativeLayout implements IFooterView {
 
     @Override
     public void showLoading() {
-        loadMorePb.setVisibility(VISIBLE);
-        noMoreTv.setVisibility(INVISIBLE);
+        if (loadingPb.getVisibility() != VISIBLE) {
+            loadingPb.setVisibility(VISIBLE);
+            infoTv.setText(R.string.kk_rl_loading_more);
+            measure(getMeasuredWidth(), getMeasuredHeight());
+        }
     }
 
     @Override
     public void showNoMore() {
-        loadMorePb.setVisibility(INVISIBLE);
-        noMoreTv.setVisibility(VISIBLE);
+        if (loadingPb.getVisibility() != GONE) {
+            loadingPb.setVisibility(GONE);
+            infoTv.setText(R.string.kk_rl_no_more_data);
+            measure(getMeasuredWidth(), getMeasuredHeight());
+        }
     }
 }
