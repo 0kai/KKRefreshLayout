@@ -1,3 +1,4 @@
 <resources>
+    <string name="kk_rl_loading_more">加载中&#8230;</string>
     <string name="kk_rl_no_more_data">没有更多了</string>
 </resources>

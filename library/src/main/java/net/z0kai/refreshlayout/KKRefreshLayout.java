@@ -43,7 +43,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     private boolean mNestedScrollInProgress;
 
     private int mTouchSlop;
-    private float mTouchY;
+    private float mTouchY = -1;
     private float mCurrentY;
 
     private View mTarget; // the target of the gesture
@@ -253,9 +253,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     }
 
     private void smoothScrollBack(final float fromOffset, float toOffset) {
-        if (fromOffset <= toOffset) {
-            return;
-        }
+//        if (fromOffset <= toOffset) {
+//            return;
+//        }
         ValueAnimator valueAnimator = ObjectAnimator.ofFloat(fromOffset, toOffset).setDuration(300);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -347,7 +347,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
 
-        if (!isEnabled() || isRefreshing || mNestedScrollInProgress) {
+        if (isRefreshing || mNestedScrollInProgress) {
             // Fail fast if we're not in a state where a swipe is possible
             return false;
         }
@@ -360,6 +360,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                 break;
 
             case MotionEvent.ACTION_MOVE:
+                if (mTouchY == -1) {
+                    break;
+                }
                 float currentY = ev.getY();
                 int dy = (int) (currentY - mTouchY);
                 if (mOffset != 0) {
@@ -391,7 +394,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if (!isEnabled() || isRefreshing || mNestedScrollInProgress || canChildScrollUp()) {
+        if (isRefreshing || mNestedScrollInProgress || canChildScrollUp()) {
             // Fail fast if we're not in a state where a swipe is possible
             return super.onTouchEvent(ev);
         }
@@ -404,6 +407,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                 break;
 
             case MotionEvent.ACTION_MOVE:
+                if (mTouchY == -1) {
+                    break;
+                }
                 mCurrentY = ev.getY();
                 int dy = - (int) (mCurrentY - mTouchY);
                 mTouchY = mCurrentY;
@@ -424,7 +430,8 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         // scrolling, ignore this request so that the vertical scroll event
         // isn't stolen
         if ((android.os.Build.VERSION.SDK_INT < 21 && mTarget instanceof AbsListView)
-                || (mTarget != null && !ViewCompat.isNestedScrollingEnabled(mTarget))) {
+                || (mTarget != null && !ViewCompat.isNestedScrollingEnabled(mTarget))
+                || !isRefreshEnable) {
             // Nope.
         } else {
             super.requestDisallowInterceptTouchEvent(b);
@@ -437,6 +444,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 //        return super.onStartNestedScroll(child, target, nestedScrollAxes);
         return isEnabled()
                 && !isRefreshing
+                && (isRefreshEnable) // and then load more will run on touch
                 && (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
@@ -489,8 +497,12 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         } else {
             mHeaderView.stopRefresh();
         }
+        if (mOffset < 0 && !isLoadMoreEnable) {
+            smoothScrollBack(mOffset, 0);
+        }
         // Dispatch up our nested parent
         stopNestedScroll();
+        mTouchY = -1;
     }
 
     @Override
@@ -561,7 +573,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     @Override
     public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
-        return super.dispatchNestedFling(velocityX, velocityY, consumed);
+        return mNestedScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
     }
 
     @Override
