@@ -43,7 +43,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     private boolean mNestedScrollInProgress;
 
     private int mTouchSlop;
-    private float mTouchY;
+    private float mTouchY = -1;
     private float mCurrentY;
 
     private View mTarget; // the target of the gesture
@@ -360,6 +360,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                 break;
 
             case MotionEvent.ACTION_MOVE:
+                if (mTouchY == -1) {
+                    break;
+                }
                 float currentY = ev.getY();
                 int dy = (int) (currentY - mTouchY);
                 if (mOffset != 0) {
@@ -404,6 +407,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                 break;
 
             case MotionEvent.ACTION_MOVE:
+                if (mTouchY == -1) {
+                    break;
+                }
                 mCurrentY = ev.getY();
                 int dy = - (int) (mCurrentY - mTouchY);
                 mTouchY = mCurrentY;
@@ -491,6 +497,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         }
         // Dispatch up our nested parent
         stopNestedScroll();
+        mTouchY = -1;
     }
 
     @Override
@@ -561,7 +568,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     @Override
     public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
-        return super.dispatchNestedFling(velocityX, velocityY, consumed);
+        return mNestedScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
     }
 
     @Override
