@@ -347,7 +347,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
 
-        if (!isEnabled() || isRefreshing || mNestedScrollInProgress) {
+        if (isRefreshing || mNestedScrollInProgress) {
             // Fail fast if we're not in a state where a swipe is possible
             return false;
         }
@@ -394,7 +394,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if (!isEnabled() || isRefreshing || mNestedScrollInProgress || canChildScrollUp()) {
+        if (isRefreshing || mNestedScrollInProgress || canChildScrollUp()) {
             // Fail fast if we're not in a state where a swipe is possible
             return super.onTouchEvent(ev);
         }
@@ -430,7 +430,8 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         // scrolling, ignore this request so that the vertical scroll event
         // isn't stolen
         if ((android.os.Build.VERSION.SDK_INT < 21 && mTarget instanceof AbsListView)
-                || (mTarget != null && !ViewCompat.isNestedScrollingEnabled(mTarget))) {
+                || (mTarget != null && !ViewCompat.isNestedScrollingEnabled(mTarget))
+                || !isRefreshEnable) {
             // Nope.
         } else {
             super.requestDisallowInterceptTouchEvent(b);
@@ -443,6 +444,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 //        return super.onStartNestedScroll(child, target, nestedScrollAxes);
         return isEnabled()
                 && !isRefreshing
+                && (isRefreshEnable) // and then load more will run on touch
                 && (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
