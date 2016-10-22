@@ -22,13 +22,24 @@
                 android:text="Recycler View"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textAllCaps="false"
                 />
+
+            <Button
+                android:id="@+id/rcvHBtn"
+                android:text="Recycler View Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                />
+
 
             <Button
                 android:id="@+id/lvBtn"
                 android:text="List View"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textAllCaps="false"
                 />
 
 

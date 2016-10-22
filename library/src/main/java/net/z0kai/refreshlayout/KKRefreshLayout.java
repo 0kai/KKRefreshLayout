@@ -3,6 +3,7 @@ package net.z0kai.refreshlayout;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingChildHelper;
@@ -29,7 +30,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     private final static String TAG = KKRefreshLayout.class.getSimpleName();
     private final static long MIN_REFRESH_TIME = 500;
-    private static final float DRAG_RATE = .5f;
+
+    // for attributeSet
+    private boolean isVertical;
 
     private boolean isRefreshing = false;
     private boolean isLoadingMore = false;
@@ -43,8 +46,8 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     private boolean mNestedScrollInProgress;
 
     private int mTouchSlop;
-    private float mTouchY = -1;
-    private float mCurrentY;
+    private float mTouchPos = -1;
+    private float mCurrentPos;
 
     private View mTarget; // the target of the gesture
     private IHeaderView mHeaderView;
@@ -71,14 +74,33 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         mNestedScrollingParentHelper = new NestedScrollingParentHelper(this);
         mNestedScrollingChildHelper = new NestedScrollingChildHelper(this);
 
-        mHeaderView = KKRefreshLayoutConfig.getHeaderViewProvider().get(context);
-        addView(mHeaderView.getView());
-
-        mFooterView = KKRefreshLayoutConfig.getFooterViewProvider().get(context);
-        addView(mFooterView.getView());
-
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.KKRefreshLayout);
+        isVertical = typedArray.getInt(R.styleable.KKRefreshLayout_rlOrientation, 1) == 1;// default vertical
+        typedArray.recycle();
+    }
+
+    public void setHeaderView(IHeaderView headerView) {
+        if (mHeaderView == null) {
+            mHeaderView = headerView;
+            addView(mHeaderView.getView());
+        }
+    }
+
+    public void setFooterView(IFooterView footerView) {
+        if (mFooterView == null) {
+            mFooterView = footerView;
+            addView(mFooterView.getView());
+        }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        ensureHeaderView();
+        ensureFooterView();
+        ensureTarget();
     }
 
     @Override
@@ -86,9 +108,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         if (getChildCount() == 0) {
             return;
         }
-        if (mTarget == null) {
-            ensureTarget();
-        }
+
         if (mTarget == null) {
             return;
         }
@@ -161,7 +181,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         if(isLoadingMore) {
             isLoadingMore = false;
             mOffset = 0;
-//            layoutChildren();
+            layoutChildren();
             if (mTarget != null) {
                 mTarget.requestLayout();
             }
@@ -173,15 +193,18 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     }
 
     private void layoutChildren() {
-        int paddingLeft = getPaddingLeft();
-        int paddingTop = getPaddingTop();
         int offset = (int) mOffset;
         int left, right, top, bottom;
 
         if (mHeaderView != null) {
             View view = mHeaderView.getView();
-            left = paddingLeft;
-            top = paddingTop - view.getMeasuredHeight() + offset;
+            if (isVertical) {
+                left = 0;
+                top = - view.getMeasuredHeight() + offset;
+            } else {
+                left = - view.getMeasuredWidth() + offset;
+                top = 0;
+            }
             right = left + view.getMeasuredWidth();
             bottom = top + view.getMeasuredHeight();
             view.layout(left, top, right, bottom);
@@ -190,23 +213,41 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
         if (mFooterView != null) {
             View view = mFooterView.getView();
-            left = paddingLeft;
-            top = paddingTop + getHeight() + offset;
+            if (isVertical) {
+                left = 0;
+                top = getHeight() + offset;
+            } else {
+                left = getWidth() + offset;
+                top = 0;
+            }
             right = left + view.getMeasuredWidth();
             bottom = top + view.getMeasuredHeight();
             view.layout(left, top, right, bottom);
+            mFooterView.onScroll(offset);
         }
 
         if (mTarget != null) {
             View view = mTarget;
-            left = paddingLeft;
-            right = left + getWidth();
-            if (offset > 0) {
-                top = paddingTop + offset;
-                bottom = top + getHeight() - offset;
+            if (isVertical) {
+                left = 0;
+                right = left + getWidth();
+                if (offset > 0) {
+                    top = offset;
+                    bottom = top + getHeight() - offset;
+                } else {
+                    top = 0;
+                    bottom = top + getHeight() + offset;
+                }
             } else {
-                top = paddingTop;
-                bottom = top + getHeight() + offset;
+                top = 0;
+                bottom = top + getHeight();
+                if (offset > 0) {
+                    left = offset;
+                    right = left + getWidth() - offset;
+                } else {
+                    left = 0;
+                    right = left + getWidth() + offset;
+                }
             }
             view.layout(left, top, right, bottom);
         }
@@ -226,36 +267,58 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         }
     }
 
+    private void ensureHeaderView() {
+        if (mHeaderView == null) {
+            setHeaderView(KKRefreshLayoutConfig.getHeaderViewProvider().get(getContext()));
+        }
+    }
+
+    private void ensureFooterView() {
+        if (mFooterView == null) {
+            setFooterView(KKRefreshLayoutConfig.getFooterViewProvider().get(getContext()));
+        }
+    }
+
     /**
      * @return Whether it is possible for the child view of this layout to
      *         scroll up. Override this if the child view is a custom view.
      */
-    public boolean canChildScrollUp() {
-        return ViewCompat.canScrollVertically(mTarget, -1);
+    protected boolean canChildScrollUp() {
+        return isVertical ? ViewCompat.canScrollVertically(mTarget, -1) : ViewCompat.canScrollHorizontally(mTarget, -1);
     }
 
-    public boolean canChildScrollDown() {
-        return ViewCompat.canScrollVertically(mTarget, 1);
+    private boolean canChildScrollDown() {
+        return isVertical ? ViewCompat.canScrollVertically(mTarget, 1) : ViewCompat.canScrollHorizontally(mTarget, 1);
     }
 
     private void finishSpinner(float overScrollTop) {
-        if (overScrollTop >= mHeaderView.getMinRefreshSize()) {
-            if (mListener != null) {
-                mListener.onRefresh();
+        if (overScrollTop > 0) {
+            if (overScrollTop >= mHeaderView.getMinRefreshSize()) {
+                if (mListener != null) {
+                    mListener.onRefresh();
+                }
+                mStartRefreshTime = System.currentTimeMillis();
+                mHeaderView.startRefresh();
+                isRefreshing = true;
+                smoothScrollBack(overScrollTop, mHeaderView.getRefreshingSize());
+            } else {
+                smoothScrollBack(overScrollTop, 0);
             }
-            mStartRefreshTime = System.currentTimeMillis();
-            mHeaderView.startRefresh();
-            isRefreshing = true;
-            smoothScrollBack(overScrollTop, mHeaderView.getRefreshingSize());
-        } else {
-            smoothScrollBack(overScrollTop, 0);
+        } else if (overScrollTop < 0 && mFooterView.getMinLoadMoreSize() > 0) {
+            if (-overScrollTop >= mFooterView.getMinLoadMoreSize()) {
+                mFooterView.showLoading();
+                isLoadingMore = true;
+                if (mListener != null) {
+                    mListener.onLoadMore();
+                }
+                smoothScrollBack(overScrollTop, -mFooterView.getLoadingSize());
+            } else {
+                smoothScrollBack(overScrollTop, 0);
+            }
         }
     }
 
     private void smoothScrollBack(final float fromOffset, float toOffset) {
-//        if (fromOffset <= toOffset) {
-//            return;
-//        }
         ValueAnimator valueAnimator = ObjectAnimator.ofFloat(fromOffset, toOffset).setDuration(300);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -275,53 +338,66 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         valueAnimator.start();
     }
 
-    private void offsetUp(int dy) {
-        if (mOffset < getHeight() / 3) {
-            dy /= 2;
-        } else if (mOffset < getHeight() / 2){
-            dy /= 3;
+    private void offsetUp(int offset) {
+        int size = isVertical ? getHeight() : getWidth();
+        if (mOffset < size / 3) {
+            offset /= 2;
+        } else if (mOffset < size / 2){
+            offset /= 3;
         } else {
-            dy /= 4;
+            offset /= 4;
         }
-        mOffset += dy;
+        mOffset += offset;
     }
 
-    private void moveChild(int dy, int dyConsumed) {
+    private void offsetDown(int offset) {
+        int size = mFooterView.getMaxSize();
+        if (mOffset < size / 3) {
+            offset /= 2;
+        } else if (mOffset < size / 2){
+            offset /= 3;
+        } else {
+            offset /= 4;
+        }
+        mOffset -= offset;
+    }
+
+    private void moveChild(int offset, int offsetConsumed) {
         // pull down
-        if (dy < 0 && isRefreshEnable && !isLoadingMore && !canChildScrollUp()) {
-            offsetUp(-dy);
+        if (offset < 0 && isRefreshEnable && !isLoadingMore && !canChildScrollUp()) {
+            offsetUp(-offset);
             layoutChildren();
         }
 
         // pull up
-        if (dy > 0 && isLoadMoreEnable && !isRefreshing && !canChildScrollDown()) {
-            if (!isLoadingMore) {
+        if (offset > 0 && isLoadMoreEnable && !isRefreshing && !canChildScrollDown()) {
+            offsetDown(offset);
+            if (-mOffset > mFooterView.getMaxSize()) {
+                mOffset = -mFooterView.getMaxSize();
+            }
+            if (!isLoadingMore && mFooterView.getMinLoadMoreSize() <= 0) {
                 mFooterView.showLoading();
                 isLoadingMore = true;
                 if (mListener != null) {
                     mListener.onLoadMore();
                 }
             }
-            mOffset -= dy;
-            if (-mOffset > mFooterView.getSize()) {
-                mOffset = -mFooterView.getSize();
-            }
             layoutChildren();
         }
 
         // pull up, show no more
-        if (dy > 0 && canChildScrollUp() && !isLoadMoreEnable) {
+        if (offset > 0 && canChildScrollUp() && !isLoadMoreEnable) {
             mFooterView.showNoMore();
-            mOffset -= dy;
-            if (-mOffset > mFooterView.getSize()) {
-                mOffset = -mFooterView.getSize();
+            offsetDown(offset);
+            if (-mOffset > mFooterView.getMaxSize()) {
+                mOffset = -mFooterView.getMaxSize();
             }
             layoutChildren();
         }
 
         // hide pull up item
-        if (dyConsumed < 0 && mOffset < 0) {
-            mOffset -= dyConsumed;
+        if (offsetConsumed < 0 && mOffset < 0) {
+            offsetDown(offsetConsumed);
             if (mOffset > 0) {
                 mOffset = 0;
             }
@@ -330,15 +406,15 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     }
 
-    private void actionMove(int dy) {
-        moveChild(dy, dy);
+    private void actionMove(int offset) {
+        moveChild(offset, offset);
 
         // pull down, back
-        if (dy > 0 && mOffset > 0) {
-            if (dy > mOffset) {
+        if (offset > 0 && mOffset > 0) {
+            if (offset > mOffset) {
                 mOffset = 0;
             } else {
-                mOffset -= dy;
+                mOffset -= offset;
             }
             layoutChildren();
         }
@@ -355,33 +431,33 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                mTouchY = ev.getY();
-                mCurrentY = mTouchY;
+                mTouchPos = isVertical ? ev.getY() : ev.getX();
+                mCurrentPos = mTouchPos;
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                if (mTouchY == -1) {
+                if (mTouchPos == -1) {
                     break;
                 }
-                float currentY = ev.getY();
-                int dy = (int) (currentY - mTouchY);
+                float currentPos = isVertical ? ev.getY() : ev.getX();
+                int offset = (int) (currentPos - mTouchPos);
                 if (mOffset != 0) {
 
-                } else if (Math.abs(dy) < mTouchSlop) {
+                } else if (Math.abs(offset) < mTouchSlop) {
                     break;
-                } else if (dy > 0 && !canChildScrollUp() && isRefreshEnable) {
+                } else if (offset > 0 && !canChildScrollUp() && isRefreshEnable) {
 //                    return true;
-                } else if (dy < 0 && !canChildScrollDown()) {
+                } else if (offset < 0 && !canChildScrollDown()) {
 //                    return true;
                 } else if (mOffset != 0) {
 //                    return true;
                 } else {
-                    mTouchY = currentY;
+                    mTouchPos = currentPos;
                     break;
                 }
-                mCurrentY = mTouchY = currentY;
-                dy = -dy;
-                actionMove(dy);
+                mCurrentPos = mTouchPos = currentPos;
+                offset = -offset;
+                actionMove(offset);
                 break;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
@@ -402,18 +478,18 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                mTouchY = ev.getY();
-                mCurrentY = mTouchY;
+                mTouchPos = isVertical ? ev.getY() : ev.getX();
+                mCurrentPos = mTouchPos;
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                if (mTouchY == -1) {
+                if (mTouchPos == -1) {
                     break;
                 }
-                mCurrentY = ev.getY();
-                int dy = - (int) (mCurrentY - mTouchY);
-                mTouchY = mCurrentY;
-                actionMove(dy);
+                mCurrentPos = isVertical ? ev.getY() : ev.getX();
+                int offset = - (int) (mCurrentPos - mTouchPos);
+                mTouchPos = mCurrentPos;
+                actionMove(offset);
                 break;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
@@ -445,7 +521,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         return isEnabled()
                 && !isRefreshing
                 && (isRefreshEnable) // and then load more will run on touch
-                && (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
+                && (nestedScrollAxes & (isVertical ? ViewCompat.SCROLL_AXIS_VERTICAL : ViewCompat.SCROLL_AXIS_HORIZONTAL)) != 0;
     }
 
     @Override
@@ -453,7 +529,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         // Reset the counter of how much leftover scroll needs to be consumed.
         mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes);
         // Dispatch up to the nested parent
-        startNestedScroll(axes & ViewCompat.SCROLL_AXIS_VERTICAL);
+        startNestedScroll(axes & (isVertical ? ViewCompat.SCROLL_AXIS_VERTICAL : ViewCompat.SCROLL_AXIS_HORIZONTAL));
         mNestedScrollInProgress = true;
     }
 
@@ -461,13 +537,14 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
         // If we are in the middle of consuming, a scroll, then we want to move the spinner back up
         // before allowing the list to scroll
-        if (dy > 0 && mOffset > 0) {
-            if (dy > mOffset) {
-                consumed[1] = dy - (int) mOffset;
+        int offset = isVertical ? dy : dx;
+        if (offset > 0 && mOffset > 0) {
+            if (offset > mOffset) {
+                consumed[isVertical ? 1 : 0] = offset - (int) mOffset;
                 mOffset = 0;
             } else {
-                mOffset -= dy;
-                consumed[1] = dy;
+                mOffset -= offset;
+                consumed[isVertical ? 1 : 0] = offset;
             }
             layoutChildren();
         }
@@ -491,9 +568,8 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         mNestedScrollInProgress = false;
         // Finish the spinner for nested scrolling if we ever consumed any
         // unconsumed nested scroll
+        finishSpinner(mOffset);
         if (mOffset > 0) {
-            finishSpinner(mOffset);
-//            mTotalUnconsumed = 0;
         } else {
             mHeaderView.stopRefresh();
         }
@@ -502,7 +578,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         }
         // Dispatch up our nested parent
         stopNestedScroll();
-        mTouchY = -1;
+        mTouchPos = -1;
     }
 
     @Override
@@ -516,8 +592,8 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         // nested scrolling parent has stopped handling events. We do that by using the
         // 'offset in window 'functionality to see if we have been moved from the event.
         // This is a decent indication of whether we should take over the event stream or not.
-        final int dy = dyUnconsumed + mParentOffsetInWindow[1];
-        moveChild(dy, dyConsumed);
+        int offset = isVertical ? (dyUnconsumed + mParentOffsetInWindow[1]) : (dxUnconsumed + mParentOffsetInWindow[0]);
+        moveChild(offset, isVertical ? dyConsumed : dxConsumed);
     }
 
     // NestedScrollingChild
