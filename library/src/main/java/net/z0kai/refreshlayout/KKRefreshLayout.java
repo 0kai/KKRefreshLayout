@@ -99,10 +99,10 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         ensureHeaderView();
         ensureFooterView();
         ensureTarget();
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override
