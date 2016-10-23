@@ -18,7 +18,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
         refreshLayout = (KKRefreshLayout) findViewById(R.id.refreshLayout);
 
-        refreshLayout.setLoadMoreEnable(true);
         refreshLayout.setRefreshListener(new KKRefreshListener() {
             @Override
             public void onRefresh() {

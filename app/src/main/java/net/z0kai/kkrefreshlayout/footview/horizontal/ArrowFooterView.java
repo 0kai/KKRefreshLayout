@@ -1,4 +1,4 @@
-package net.z0kai.kkrefreshlayout.footview;
+package net.z0kai.kkrefreshlayout.footview.horizontal;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -16,7 +16,7 @@ import net.z0kai.kkrefreshlayout.R;
 import net.z0kai.kkrefreshlayout.utils.DensityUtil;
 import net.z0kai.refreshlayout.view.IFooterView;
 
-public class HArrowFooterView extends View implements IFooterView {
+public class ArrowFooterView extends View implements IFooterView {
     private Path mPath;
     private Paint mPaint;
     private int mMinimumHeight;
@@ -29,9 +29,6 @@ public class HArrowFooterView extends View implements IFooterView {
 
     private boolean isDrawBack = false;
 
-    private int mLineDistance;// 线回去的路程
-    private int mImgDistance;// 图片回去的路程
-
     private boolean isFirstIn = true;
 
     private int mArrowHeight;
@@ -41,22 +38,22 @@ public class HArrowFooterView extends View implements IFooterView {
 
     private int mVisibleWidth;
 
-    public HArrowFooterView(Context context) {
+    public ArrowFooterView(Context context) {
         this(context, null, 0);
     }
 
-    public HArrowFooterView(Context context, AttributeSet attrs) {
+    public ArrowFooterView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public HArrowFooterView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ArrowFooterView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @SuppressWarnings("unused")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public HArrowFooterView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ArrowFooterView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
@@ -98,11 +95,11 @@ public class HArrowFooterView extends View implements IFooterView {
         if (isDrawBack) {
 
             mPath.moveTo(measuredWidth, top);
-            mPath.quadTo(mSupX + mLineDistance * mFlyPercent / 100, mSupY, measuredWidth, measuredHeight - top);
+            mPath.quadTo(mSupX, mSupY, measuredWidth, measuredHeight - top);
             canvas.drawPath(mPath, mPaint);
 
             if (mFlyPercent < 100) {
-                canvas.drawBitmap(bitmap, mBitmapX + mImgDistance * mFlyPercent / 100, mBitmapY, mPaint);
+                canvas.drawBitmap(bitmap, mBitmapX, mBitmapY, mPaint);
                 mFlyPercent += 5;
                 postInvalidateDelayed(10);
             } else {
@@ -115,7 +112,7 @@ public class HArrowFooterView extends View implements IFooterView {
             mPath.moveTo(measuredWidth, top);
             mPath.quadTo(mSupX, mSupY, measuredWidth, measuredHeight - top);
             canvas.drawPath(mPath, mPaint);
-            // 经典,被自己感动到了 确保图标一直在线后面
+
             mBitmapX = (int) (measuredWidth - (measuredWidth - mSupX) / 2 + 20);
             mBitmapY = (int) (mSupY - bitmap.getHeight() / 2);
 

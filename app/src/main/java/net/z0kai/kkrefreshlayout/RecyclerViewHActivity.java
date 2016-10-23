@@ -4,8 +4,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
-import net.z0kai.kkrefreshlayout.footview.HArrowFooterView;
+import net.z0kai.kkrefreshlayout.footview.horizontal.ArrowFooterView;
 import net.z0kai.refreshlayout.KKRefreshLayout;
 import net.z0kai.refreshlayout.KKRefreshListener;
 
@@ -26,7 +27,6 @@ public class RecyclerViewHActivity extends BaseActivity {
         adapter = new TestAdapter(this);
         recyclerView.setAdapter(adapter);
 
-        refreshLayout.setLoadMoreEnable(true);
         refreshLayout.setRefreshListener(new KKRefreshListener() {
             @Override
             public void onRefresh() {
@@ -48,11 +48,11 @@ public class RecyclerViewHActivity extends BaseActivity {
                         refreshLayout.finishLoadMore();
                         refreshLayout.finishRefresh();
 //                        adapter.addData();
+                        Toast.makeText(RecyclerViewHActivity.this, "on load more", Toast.LENGTH_SHORT).show();
                     }
                 }, 2000);
             }
         });
-        refreshLayout.setFooterView(new HArrowFooterView(this));
-        refreshLayout.setRefreshEnable(false);
+        refreshLayout.setFooterView(new ArrowFooterView(this));
     }
 }

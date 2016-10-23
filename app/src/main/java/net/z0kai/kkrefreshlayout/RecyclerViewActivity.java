@@ -25,7 +25,6 @@ public class RecyclerViewActivity extends BaseActivity {
         adapter = new TestAdapter(this);
         recyclerView.setAdapter(adapter);
 
-        refreshLayout.setLoadMoreEnable(true);
         refreshLayout.setRefreshListener(new KKRefreshListener() {
             @Override
             public void onRefresh() {

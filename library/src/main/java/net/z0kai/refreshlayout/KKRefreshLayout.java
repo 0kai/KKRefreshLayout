@@ -34,10 +34,10 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     // for attributeSet
     private boolean isVertical;
 
-    private boolean isRefreshing = false;
-    private boolean isLoadingMore = false;
-    private boolean isRefreshEnable = true;
-    private boolean isLoadMoreEnable = false;
+    private boolean isRefreshing;
+    private boolean isLoadingMore;
+    private boolean isRefreshEnable;
+    private boolean isLoadMoreEnable;
 
     private final NestedScrollingParentHelper mNestedScrollingParentHelper;
     private final NestedScrollingChildHelper mNestedScrollingChildHelper;
@@ -78,6 +78,8 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.KKRefreshLayout);
         isVertical = typedArray.getInt(R.styleable.KKRefreshLayout_rlOrientation, 1) == 1;// default vertical
+        isRefreshEnable = typedArray.getBoolean(R.styleable.KKRefreshLayout_rlRefreshEnable, true);
+        isLoadMoreEnable = typedArray.getBoolean(R.styleable.KKRefreshLayout_rlLoadMoreEnable, false);
         typedArray.recycle();
     }
 
@@ -569,8 +571,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         // Finish the spinner for nested scrolling if we ever consumed any
         // unconsumed nested scroll
         finishSpinner(mOffset);
-        if (mOffset > 0) {
-        } else {
+        if (mOffset <= 0) {
             mHeaderView.stopRefresh();
         }
         if (mOffset < 0 && !isLoadMoreEnable) {

@@ -6,6 +6,8 @@
             <enum name="horizontal" value="0"/>
             <enum name="vertical" value="1"/>
         </attr>
+        <attr name="rlRefreshEnable" format="boolean"/>
+        <attr name="rlLoadMoreEnable" format="boolean"/>
     </declare-styleable>
 
 </resources>
