@@ -29,8 +29,6 @@ public class ArrowFooterView extends View implements IFooterView {
 
     private boolean isDrawBack = false;
 
-    private boolean isFirstIn = true;
-
     private int mArrowHeight;
     private Bitmap mArrowBitmap;
 
@@ -83,11 +81,7 @@ public class ArrowFooterView extends View implements IFooterView {
         int measuredHeight = getMeasuredHeight();
         mPath.reset();
 
-        if (isFirstIn) {
-            isFirstIn = false;
-            mSupX = measuredWidth;
-            mSupY = measuredHeight / 2;
-        }
+        mSupY = measuredHeight / 2;
         Bitmap bitmap = mArrowBitmap;
 
         int top = (measuredHeight - mArrowHeight) / 2;

@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
 import net.z0kai.kkrefreshlayout.footview.horizontal.ArrowFooterView;
+import net.z0kai.kkrefreshlayout.headerview.EmptyHeaderView;
 import net.z0kai.refreshlayout.KKRefreshLayout;
 import net.z0kai.refreshlayout.KKRefreshListener;
 
@@ -53,6 +54,7 @@ public class RecyclerViewHActivity extends BaseActivity {
                 }, 2000);
             }
         });
+        refreshLayout.setHeaderView(new EmptyHeaderView(this));
         refreshLayout.setFooterView(new ArrowFooterView(this));
     }
 }
