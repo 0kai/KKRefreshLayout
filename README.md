@@ -10,7 +10,7 @@ And support custom design header and footer view.
 ## Set-up
 
 ### Download
-Download [the latest aar]() or grab via Gradle:
+Download [the latest aar](https://github.com/0kai/KKRefreshLayout/releases) or grab via Gradle:
 ```groovy
 support later
 ```
