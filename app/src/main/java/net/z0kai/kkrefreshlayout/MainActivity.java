@@ -18,7 +18,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
         refreshLayout = (KKRefreshLayout) findViewById(R.id.refreshLayout);
 
-        refreshLayout.setLoadMoreEnable(true);
         refreshLayout.setRefreshListener(new KKRefreshListener() {
             @Override
             public void onRefresh() {
@@ -47,6 +46,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     private void bindEvent() {
         findViewById(R.id.rcvBtn).setOnClickListener(this);
+        findViewById(R.id.rcvHBtn).setOnClickListener(this);
         findViewById(R.id.lvBtn).setOnClickListener(this);
     }
 
@@ -55,6 +55,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         switch (v.getId()) {
             case R.id.rcvBtn:
                 startActivity(new Intent(this, RecyclerViewActivity.class));
+                break;
+            case R.id.rcvHBtn:
+                startActivity(new Intent(this, RecyclerViewHActivity.class));
                 break;
             case R.id.lvBtn:
                 startActivity(new Intent(this, ListViewActivity.class));

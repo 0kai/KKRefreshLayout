@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="KKRefreshLayout">
+        <attr name="rlOrientation">
+            <enum name="horizontal" value="0"/>
+            <enum name="vertical" value="1"/>
+        </attr>
+        <attr name="rlRefreshEnable" format="boolean"/>
+        <attr name="rlLoadMoreEnable" format="boolean"/>
+    </declare-styleable>
+
+</resources>

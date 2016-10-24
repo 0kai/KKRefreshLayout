@@ -11,6 +11,7 @@
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:rlOrientation="horizontal"
         app:rlLoadMoreEnable="true"
         android:background="#ffffff">
 

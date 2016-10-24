@@ -40,8 +40,23 @@ public class DefaultFooterView extends RelativeLayout implements IFooterView {
     }
 
     @Override
-    public int getSize() {
+    public int getMaxSize() {
         return getHeight();
+    }
+
+    @Override
+    public int getMinLoadMoreSize() {
+        return 0;
+    }
+
+    @Override
+    public int getLoadingSize() {
+        return -1;
+    }
+
+    @Override
+    public void onScroll(float offset) {
+
     }
 
     @Override
