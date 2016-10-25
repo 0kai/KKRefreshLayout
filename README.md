@@ -12,11 +12,16 @@ And support custom design header and footer view.
 ### Download
 Download [the latest aar](https://github.com/0kai/KKRefreshLayout/releases) or grab via Gradle:
 ```groovy
-support later
+compile 'net.z0kai.refreshlayout:kkrefreshlayout:0.1.0'
 ```
 or Maven:
 ```xml
-support later
+<dependency>
+  <groupId>net.z0kai.refreshlayout</groupId>
+  <artifactId>kkrefreshlayout</artifactId>
+  <version>0.1.0</version>
+  <type>pom</type>
+</dependency>
 ```
 
 ### Layout
