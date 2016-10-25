@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 
 def VERSION_NAME = "0.1.0"
-def GROUP_ID = "net.z0kai.refreshlayou"
+def GROUP_ID = "net.z0kai.refreshlayout"
 
 ext {
     PUBLISH_GROUP_ID = GROUP_ID
-    PUBLISH_ARTIFACT_ID = 'kkrefreshlayou'
+    PUBLISH_ARTIFACT_ID = 'kkrefreshlayout'
     PUBLISH_VERSION = VERSION_NAME
 }
 
@@ -39,4 +39,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
+// terminal: gradle clean build generateRelease
+// then upload to bintray.com by yourself
 apply from: 'https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle'
