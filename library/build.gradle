@@ -1,5 +1,14 @@
 apply plugin: 'com.android.library'
 
+def VERSION_NAME = "0.1.0"
+def GROUP_ID = "net.z0kai.refreshlayout"
+
+ext {
+    PUBLISH_GROUP_ID = GROUP_ID
+    PUBLISH_ARTIFACT_ID = 'kkrefreshlayout'
+    PUBLISH_VERSION = VERSION_NAME
+}
+
 android {
     compileSdkVersion 24
     buildToolsVersion "24.0.2"
@@ -8,7 +17,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 24
         versionCode 1
-        versionName "0.1.0"
+        versionName VERSION_NAME
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -17,17 +26,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-
-            // 这一段用来重命名aar包，并放置在3rdparty-jas根目录，不同module使用相同，不需要修改
-//            libraryVariants.all { variant ->
-//                variant.outputs.each { output ->
-//                    def outputFile = output.outputFile
-//                    if (outputFile != null && outputFile.name.endsWith('release.aar')) {
-//                        def fileName = "KKRefreshLayout-${defaultConfig.versionName}.aar"
-//                        output.outputFile = new File(getRootDir().getParent() + "/3rdparty-jars/libraries/", fileName)
-//                    }
-//                }
-//            }
         }
     }
 }
@@ -40,3 +38,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
 }
+
+// terminal: gradle clean build generateRelease
+// then upload to bintray.com by yourself
+apply from: 'https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle'
