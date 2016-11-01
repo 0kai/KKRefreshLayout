@@ -5,9 +5,9 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="net.z0kai.kkrefreshlayout.RecyclerViewActivity">
+    tools:context="net.z0kai.kkrefreshlayout_demo.RecyclerViewActivity">
 
-    <net.z0kai.refreshlayout.KKRefreshLayout
+    <net.z0kai.kkrefreshlayout.KKRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,6 +20,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-    </net.z0kai.refreshlayout.KKRefreshLayout>
+    </net.z0kai.kkrefreshlayout.KKRefreshLayout>
 
 </RelativeLayout>

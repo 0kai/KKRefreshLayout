@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
-def VERSION_NAME = "0.1.0"
-def GROUP_ID = "net.z0kai.refreshlayout"
+def VERSION_NAME = "0.1.1"
+def GROUP_ID = "net.z0kai"
 
 ext {
     PUBLISH_GROUP_ID = GROUP_ID
