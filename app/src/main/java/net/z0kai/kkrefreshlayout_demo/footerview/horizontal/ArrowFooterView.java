@@ -1,4 +1,4 @@
-package net.z0kai.kkrefreshlayout_demo.horizontal;
+package net.z0kai.kkrefreshlayout_demo.footerview.horizontal;
 
 import android.annotation.TargetApi;
 import android.content.Context;
