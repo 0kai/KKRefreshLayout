@@ -1,4 +1,7 @@
 <resources>
+    <string name="kk_rl_pull_to_refresh">下拉刷新</string>
+    <string name="kk_rl_release_to_refresh">松开刷新</string>
+    <string name="kk_rl_refreshing">刷新中&#8230;</string>
     <string name="kk_rl_loading_more">加载中&#8230;</string>
     <string name="kk_rl_no_more_data">没有更多了</string>
 </resources>

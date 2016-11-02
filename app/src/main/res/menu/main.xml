@@ -2,6 +2,16 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/menu_set_header"
+        android:title="Header"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/menu_set_footer"
+        android:title="Footer"
+        app:showAsAction="always"
+        />
+    <item
         android:id="@+id/menu_start_refresh"
         android:title="Start Refresh"
         />

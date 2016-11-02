@@ -1,4 +1,7 @@
 <resources>
+    <string name="kk_rl_pull_to_refresh">Pull to Refresh</string>
+    <string name="kk_rl_release_to_refresh">Release to Refresh</string>
+    <string name="kk_rl_refreshing">Refreshing&#8230;</string>
     <string name="kk_rl_loading_more">Loading&#8230;</string>
     <string name="kk_rl_no_more_data">No More</string>
 </resources>
