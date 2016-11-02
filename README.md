@@ -61,7 +61,7 @@ refreshLayout.setFooterView(new ArrowFooterView(this));
 ## Demo
 > you can push your custom header/footer view into the demo app, and then add the class in the list of [AppConfigs.java](app/src/main/java/net/z0kai/kkrefreshlayout_demo/AppConfig.java)
 
-![](static/default-refresh.gif) ![](static/custom-refresh.gif) ![](static/custom-refresh.gif)
+![](static/default-refresh.gif) ![](static/custom-refresh.gif) ![](static/horizontal-refresh.gif)
 
 ## Author
 Z0Kai, @0kai on GitHub, [blog-中文](http://www.0kai.net)
