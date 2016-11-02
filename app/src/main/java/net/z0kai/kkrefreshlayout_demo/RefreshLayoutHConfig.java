@@ -6,7 +6,7 @@ import net.z0kai.kkrefreshlayout.FooterViewProvider;
 import net.z0kai.kkrefreshlayout.HeaderViewProvider;
 import net.z0kai.kkrefreshlayout.IFooterView;
 import net.z0kai.kkrefreshlayout.IHeaderView;
-import net.z0kai.kkrefreshlayout_demo.horizontal.ArrowFooterView;
+import net.z0kai.kkrefreshlayout_demo.footerview.horizontal.ArrowFooterView;
 import net.z0kai.kkrefreshlayout_demo.headerview.EmptyHeaderView;
 
 /**
