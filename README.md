@@ -45,7 +45,7 @@ refreshLayout.setRefreshListener(new KKRefreshListener() {
 ```
 
 ### Customization
-You can custom header/footer view for your app by implements [IHeaderView](library/src/main/java/net/z0kai/kkrefreshlayout/view/IHeaderView.java)/[IFooterView](library/src/main/java/net/z0kai/kkrefreshlayout/view/IFooterView.java).
+You can custom header/footer view for your app by implements [IHeaderView](library/src/main/java/net/z0kai/kkrefreshlayout/IHeaderView.java)/[IFooterView](library/src/main/java/net/z0kai/kkrefreshlayout/IFooterView.java).
 And config for all refresh layout in your app, see [KKRefreshLayoutConfig](library/src/main/java/net/z0kai/kkrefreshlayout/KKRefreshLayoutConfig.java).
 ```java
 // only for vertical
@@ -59,7 +59,7 @@ refreshLayout.setFooterView(new ArrowFooterView(this));
 ```
 
 ## Demo
-> you can push your custom header/footer view into the demo app, and then add the class in the list of [AppConfigs.java](app/src/main/java/net/z0kai/kkrefreshlayout_demo/AppConfig.java)
+> you can push your custom header/footer view into the demo app, and then add the class in the list of [AppConfigs.java](app/src/main/java/net/z0kai/kkrefreshlayout_demo/AppConfigs.java)
 
 ![](static/default-refresh.gif) ![](static/custom-refresh.gif) ![](static/horizontal-refresh.gif)
 
