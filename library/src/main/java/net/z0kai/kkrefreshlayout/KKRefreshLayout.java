@@ -10,6 +10,7 @@ import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -61,6 +62,8 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
             smoothScrollBack(mOffset, 0);
         }
     };
+
+    private boolean isFling;
 
     public KKRefreshLayout(Context context) {
         this(context, null);
@@ -260,6 +263,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                 View child = getChildAt(i);
                 if (!(child instanceof IHeaderView) && !(child instanceof IFooterView)) {
                     mTarget = child;
+                    bindEvent2Target();
                     break;
                 }
             }
@@ -275,6 +279,72 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     private void ensureFooterView() {
         if (mFooterView == null) {
             setFooterView(KKRefreshLayoutConfig.getFooterViewProvider().get(getContext()));
+        }
+    }
+
+    private void bindEvent2Target() {
+        if (mFooterView == null || mFooterView.autoLoadOnEndSize() <= 0) {
+            return;
+        }
+        if (mTarget instanceof RecyclerView) {
+            ((RecyclerView) mTarget).addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    onScrollEnd(recyclerView, newState);
+                }
+            });
+        } else if (mTarget instanceof AbsListView) {
+            ((AbsListView) mTarget).setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView view, int newState) {
+                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
+                        isFling = true;
+                    }
+                    onScrollEnd(view, newState);
+                }
+
+                @Override
+                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+                }
+            });
+        }
+    }
+
+    private void onScrollEnd(final View view, int newState) {
+        if (newState == 0) {
+            if (mOffset == 0 && isLoadMoreEnable && !canChildScrollDown()) {
+                if (isFling) {
+                    ValueAnimator valueAnimator = ObjectAnimator.ofFloat(0, - mFooterView.autoLoadOnEndSize()).setDuration(300);
+                    valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(ValueAnimator animation) {
+                            if (!isLoadingMore) {
+                                return;
+                            }
+                            mOffset = (float) animation.getAnimatedValue();
+                            layoutChildren();
+                            if (view instanceof RecyclerView) {
+                                if (isVertical) {
+                                    ((RecyclerView) view).smoothScrollBy(0, (int) -mOffset);
+                                } else {
+                                    ((RecyclerView) view).smoothScrollBy((int) -mOffset, 0);
+                                }
+                            } else if (view instanceof AbsListView) {
+                                ((AbsListView) view).smoothScrollBy((int) -mOffset, 0);
+                            }
+                        }
+                    });
+                    valueAnimator.setInterpolator(new DecelerateInterpolator());
+                    valueAnimator.start();
+                }
+                isLoadingMore = true;
+                if (mListener != null) {
+                    mListener.onLoadMore();
+                }
+            }
+            isFling = false;
         }
     }
 
@@ -647,6 +717,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     @Override
     public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
+        isFling = true;
         return mNestedScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
     }
 
