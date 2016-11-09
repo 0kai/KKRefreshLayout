@@ -12,6 +12,7 @@ import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -64,6 +65,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     };
 
     private boolean isFling;
+    private GestureDetector mGestureDetector;
 
     public KKRefreshLayout(Context context) {
         this(context, null);
@@ -298,9 +300,6 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
             ((AbsListView) mTarget).setOnScrollListener(new AbsListView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(AbsListView view, int newState) {
-                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-                        isFling = true;
-                    }
                     onScrollEnd(view, newState);
                 }
 
@@ -310,13 +309,20 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                 }
             });
         }
+        mGestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                isFling = true;
+                return super.onFling(e1, e2, velocityX, velocityY);
+            }
+        });
     }
 
     private void onScrollEnd(final View view, int newState) {
         if (newState == 0) {
             if (mOffset == 0 && isLoadMoreEnable && !canChildScrollDown()) {
                 if (isFling) {
-                    ValueAnimator valueAnimator = ObjectAnimator.ofFloat(0, - mFooterView.autoLoadOnEndSize()).setDuration(300);
+                    ValueAnimator valueAnimator = ObjectAnimator.ofFloat(0, - mFooterView.autoLoadOnEndSize()).setDuration(500);
                     valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                         @Override
                         public void onAnimationUpdate(ValueAnimator animation) {
@@ -496,6 +502,8 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
             // Fail fast if we're not in a state where a swipe is possible
             return false;
         }
+
+        mGestureDetector.onTouchEvent(ev);
 
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
