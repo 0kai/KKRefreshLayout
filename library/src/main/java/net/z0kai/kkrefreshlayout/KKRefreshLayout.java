@@ -503,7 +503,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
             return false;
         }
 
-        mGestureDetector.onTouchEvent(ev);
+        if (mGestureDetector != null) {
+            mGestureDetector.onTouchEvent(ev);
+        }
 
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
