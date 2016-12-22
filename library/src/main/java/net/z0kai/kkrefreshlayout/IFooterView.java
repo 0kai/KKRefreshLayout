@@ -27,4 +27,6 @@ public interface IFooterView {
     void showLoading();
 
     void showNoMore();
+
+    int autoLoadOnEndSize();
 }

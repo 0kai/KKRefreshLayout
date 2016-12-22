@@ -163,4 +163,9 @@ public class ArrowFooterView extends View implements IFooterView {
     public void showNoMore() {
 
     }
+
+    @Override
+    public int autoLoadOnEndSize() {
+        return 0;
+    }
 }

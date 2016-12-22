@@ -77,4 +77,13 @@ public class DefaultFooterView extends RelativeLayout implements IFooterView {
             measure(getMeasuredWidth(), getMeasuredHeight());
         }
     }
+
+    @Override
+    public int autoLoadOnEndSize() {
+        if (getHeight() == 0) {
+            return 1;
+        }
+        return getHeight();
+    }
+
 }
