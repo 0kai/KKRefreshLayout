@@ -2,6 +2,7 @@ package net.z0kai.kkrefreshlayout;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v4.view.MotionEventCompat;
@@ -139,6 +140,10 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
+                if (getContext() instanceof Activity && ((Activity) getContext()).isFinishing()) {
+                    animation.cancel();
+                    return;
+                }
                 float value = (float) animation.getAnimatedValue();
                 mOffset = value;
                 layoutChildren();
