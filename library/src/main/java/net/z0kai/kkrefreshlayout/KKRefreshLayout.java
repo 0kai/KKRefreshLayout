@@ -351,6 +351,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                     valueAnimator.start();
                 }
                 isLoadingMore = true;
+                mFooterView.showLoading();
                 if (mListener != null) {
                     mListener.onLoadMore();
                 }
