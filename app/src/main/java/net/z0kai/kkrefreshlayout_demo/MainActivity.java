@@ -6,19 +6,16 @@ import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-import net.z0kai.kkrefreshlayout.KKRefreshLayout;
-import net.z0kai.kkrefreshlayout.KKRefreshListener;
-
 public class MainActivity extends BaseActivity implements OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(net.z0kai.kkrefreshlayout_demo.R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
-        refreshLayout = (KKRefreshLayout) findViewById(net.z0kai.kkrefreshlayout_demo.R.id.refreshLayout);
+        refreshLayout = (AppRefreshLayout) findViewById(R.id.refreshLayout);
 
-        refreshLayout.setRefreshListener(new KKRefreshListener() {
+        refreshLayout.setRefreshLayoutListener(new AppRefreshLayout.AppRefreshLayoutListener() {
             @Override
             public void onRefresh() {
                 new Handler().postDelayed(new Runnable() {
@@ -45,21 +42,21 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     }
 
     private void bindEvent() {
-        findViewById(net.z0kai.kkrefreshlayout_demo.R.id.rcvBtn).setOnClickListener(this);
-        findViewById(net.z0kai.kkrefreshlayout_demo.R.id.rcvHBtn).setOnClickListener(this);
-        findViewById(net.z0kai.kkrefreshlayout_demo.R.id.lvBtn).setOnClickListener(this);
+        findViewById(R.id.rcvBtn).setOnClickListener(this);
+        findViewById(R.id.rcvHBtn).setOnClickListener(this);
+        findViewById(R.id.lvBtn).setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case net.z0kai.kkrefreshlayout_demo.R.id.rcvBtn:
+            case R.id.rcvBtn:
                 startActivity(new Intent(this, RecyclerViewActivity.class));
                 break;
-            case net.z0kai.kkrefreshlayout_demo.R.id.rcvHBtn:
+            case R.id.rcvHBtn:
                 startActivity(new Intent(this, RecyclerViewHActivity.class));
                 break;
-            case net.z0kai.kkrefreshlayout_demo.R.id.lvBtn:
+            case R.id.lvBtn:
                 startActivity(new Intent(this, ListViewActivity.class));
                 break;
         }

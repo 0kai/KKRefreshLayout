@@ -9,9 +9,6 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
-import net.z0kai.kkrefreshlayout.KKRefreshLayout;
-import net.z0kai.kkrefreshlayout.KKRefreshListener;
-
 public class ListViewActivity extends BaseActivity {
 
     private ListView listView;
@@ -22,12 +19,12 @@ public class ListViewActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(net.z0kai.kkrefreshlayout_demo.R.layout.activity_list_view);
 
-        refreshLayout = (KKRefreshLayout) findViewById(net.z0kai.kkrefreshlayout_demo.R.id.refreshLayout);
+        refreshLayout = (AppRefreshLayout) findViewById(net.z0kai.kkrefreshlayout_demo.R.id.refreshLayout);
         listView = (ListView) findViewById(net.z0kai.kkrefreshlayout_demo.R.id.listView);
         adapter = new MyAdapter(this);
         listView.setAdapter(adapter);
 
-        refreshLayout.setRefreshListener(new KKRefreshListener() {
+        refreshLayout.setRefreshLayoutListener(new AppRefreshLayout.AppRefreshLayoutListener() {
             @Override
             public void onRefresh() {
                 new Handler().postDelayed(new Runnable() {
