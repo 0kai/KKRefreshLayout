@@ -35,6 +35,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     private boolean isVertical;
 
     private boolean isRefreshing;
+    private boolean isPageRefreshing; // isRefreshing would be true
     private boolean isLoadingMore;
     private boolean isRefreshEnable;
     private boolean isLoadMoreEnable;
@@ -52,6 +53,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     private View mTarget; // the target of the gesture
     private IHeaderView mHeaderView;
     private IFooterView mFooterView;
+    private IPageView mPageView;
 
     private KKRefreshListener mListener;
 
@@ -100,11 +102,19 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         }
     }
 
+    public void setPageView(IPageView pageView) {
+        if (mPageView == null) {
+            mPageView = pageView;
+            addView(mPageView.getView());
+        }
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         ensureHeaderView();
         ensureFooterView();
         ensureTarget();
+        ensurePageView();
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
@@ -120,7 +130,11 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         layoutChildren();
         if (isRefreshBeforeLayout) {
             isRefreshBeforeLayout = false;
-            startRefresh();
+            if (isPageRefreshing) {
+                startPageRefresh();
+            } else {
+                startRefresh();
+            }
         }
     }
 
@@ -157,6 +171,24 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         valueAnimator.start();
     }
 
+    public void startPageRefresh() {
+        if (isRefreshing) {
+            return;
+        }
+        isPageRefreshing = true;
+        if (getMeasuredWidth() == 0) {
+            isRefreshBeforeLayout = true;
+            return;
+        }
+        isRefreshing = true;
+        if (mListener != null) {
+            mListener.onRefresh();
+        }
+        if (mPageView != null) {
+            mPageView.show();
+        }
+    }
+
     public void startLoadMore() {
         if (isLoadingMore || !isLoadMoreEnable) {
             return;
@@ -177,17 +209,26 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     public void finishRefresh() {
         if (isRefreshing) {
-            long refreshTime = System.currentTimeMillis() - mStartRefreshTime;
-            if (refreshTime < MIN_REFRESH_TIME) {
-                postDelayed(mMoveBackRunnable, MIN_REFRESH_TIME - refreshTime);
+            if (isPageRefreshing) {
+                if (mPageView != null) {
+                    mPageView.hide();
+                }
+                isRefreshing = false;
+                isPageRefreshing = false;
+                layoutChildren();
             } else {
-                mMoveBackRunnable.run();
+                long refreshTime = System.currentTimeMillis() - mStartRefreshTime;
+                if (refreshTime < MIN_REFRESH_TIME) {
+                    postDelayed(mMoveBackRunnable, MIN_REFRESH_TIME - refreshTime);
+                } else {
+                    mMoveBackRunnable.run();
+                }
             }
         }
     }
 
     public void finishLoadMore() {
-        if(isLoadingMore) {
+        if (isLoadingMore) {
             isLoadingMore = false;
             mOffset = 0;
             layoutChildren();
@@ -202,6 +243,17 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     }
 
     private void layoutChildren() {
+        post(mLayoutRunnable);
+    }
+
+    private Runnable mLayoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            layoutChildrenInRunnable();
+        }
+    };
+
+    private void layoutChildrenInRunnable() {
         int offset = (int) mOffset;
         int left, right, top, bottom;
 
@@ -209,9 +261,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
             View view = mHeaderView.getView();
             if (isVertical) {
                 left = 0;
-                top = - view.getMeasuredHeight() + offset;
+                top = -view.getMeasuredHeight() + offset;
             } else {
-                left = - view.getMeasuredWidth() + offset;
+                left = -view.getMeasuredWidth() + offset;
                 top = 0;
             }
             right = left + view.getMeasuredWidth();
@@ -260,6 +312,13 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
             }
             view.layout(left, top, right, bottom);
         }
+
+        if (mPageView != null) {
+            View view = mPageView.getView();
+            if (isPageRefreshing) {
+                view.layout(0, 0, getWidth(), getHeight());
+            }
+        }
     }
 
     private void ensureTarget() {
@@ -268,7 +327,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         if (mTarget == null) {
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
-                if (!(child instanceof IHeaderView) && !(child instanceof IFooterView)) {
+                if (!(child instanceof IHeaderView) && !(child instanceof IFooterView) && !(child instanceof IPageView)) {
                     mTarget = child;
                     bindEvent2Target();
                     break;
@@ -277,16 +336,39 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         }
     }
 
+    private void ensurePageView() {
+        if (mPageView == null) {
+            mPageView = obtainPageView();
+            if (mPageView != null) {
+                addView(mPageView.getView());
+            }
+        }
+    }
+
     private void ensureHeaderView() {
         if (mHeaderView == null) {
-            setHeaderView(KKRefreshLayoutConfig.getHeaderViewProvider().get(getContext()));
+            IHeaderView headerView = obtainHeaderView();
+            setHeaderView(headerView);
         }
     }
 
     private void ensureFooterView() {
         if (mFooterView == null) {
-            setFooterView(KKRefreshLayoutConfig.getFooterViewProvider().get(getContext()));
+            IFooterView footerView = obtainFooterView();
+            setFooterView(footerView);
         }
+    }
+
+    protected IPageView obtainPageView() {
+        return null;
+    }
+
+    protected IHeaderView obtainHeaderView() {
+        return null;
+    }
+
+    protected IFooterView obtainFooterView() {
+        return null;
     }
 
     private void bindEvent2Target() {
@@ -327,7 +409,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         if (newState == 0) {
             if (mOffset == 0 && isLoadMoreEnable && !canChildScrollDown()) {
                 if (isFling) {
-                    ValueAnimator valueAnimator = ObjectAnimator.ofFloat(0, - mFooterView.autoLoadOnEndSize()).setDuration(500);
+                    ValueAnimator valueAnimator = ObjectAnimator.ofFloat(0, -mFooterView.autoLoadOnEndSize()).setDuration(500);
                     valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                         @Override
                         public void onAnimationUpdate(ValueAnimator animation) {
@@ -362,7 +444,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     /**
      * @return Whether it is possible for the child view of this layout to
-     *         scroll up. Override this if the child view is a custom view.
+     * scroll up. Override this if the child view is a custom view.
      */
     protected boolean canChildScrollUp() {
         return isVertical ? ViewCompat.canScrollVertically(mTarget, -1) : ViewCompat.canScrollHorizontally(mTarget, -1);
@@ -423,7 +505,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         int size = isVertical ? getHeight() : getWidth();
         if (mOffset < size / 3) {
             offset /= 2;
-        } else if (mOffset < size / 2){
+        } else if (mOffset < size / 2) {
             offset /= 3;
         } else {
             offset /= 4;
@@ -435,7 +517,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         int size = mFooterView.getMaxSize();
         if (mOffset < size / 3) {
             offset /= 2;
-        } else if (mOffset < size / 2){
+        } else if (mOffset < size / 2) {
             offset /= 3;
         } else {
             offset /= 4;
@@ -572,7 +654,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                     break;
                 }
                 mCurrentPos = isVertical ? ev.getY() : ev.getX();
-                int offset = - (int) (mCurrentPos - mTouchPos);
+                int offset = -(int) (mCurrentPos - mTouchPos);
                 mTouchPos = mCurrentPos;
                 actionMove(offset);
                 break;

@@ -1,4 +1,4 @@
-package net.z0kai.kkrefreshlayout_demo;
+package net.z0kai.kkrefreshlayout_demo.config;
 
 import net.z0kai.kkrefreshlayout_demo.footerview.horizontal.ArrowFooterView;
 import net.z0kai.kkrefreshlayout_demo.headerview.EmptyHeaderView;

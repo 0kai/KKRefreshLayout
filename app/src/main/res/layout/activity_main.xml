@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context="net.z0kai.kkrefreshlayout_demo.MainActivity">
 
-    <net.z0kai.kkrefreshlayout.KKRefreshLayout
+    <net.z0kai.kkrefreshlayout_demo.AppRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -47,5 +47,5 @@
 
         </LinearLayout>
 
-    </net.z0kai.kkrefreshlayout.KKRefreshLayout>
+    </net.z0kai.kkrefreshlayout_demo.AppRefreshLayout>
 </RelativeLayout>

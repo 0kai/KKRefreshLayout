@@ -1,9 +1,7 @@
-package net.z0kai.kkrefreshlayout_demo;
+package net.z0kai.kkrefreshlayout_demo.config;
 
 import android.content.Context;
 
-import net.z0kai.kkrefreshlayout.FooterViewProvider;
-import net.z0kai.kkrefreshlayout.HeaderViewProvider;
 import net.z0kai.kkrefreshlayout.IFooterView;
 import net.z0kai.kkrefreshlayout.IHeaderView;
 import net.z0kai.kkrefreshlayout_demo.footerview.horizontal.ArrowFooterView;
