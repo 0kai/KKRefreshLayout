@@ -175,12 +175,12 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         if (isRefreshing) {
             return;
         }
+        isPageRefreshing = true;
         if (getMeasuredWidth() == 0) {
             isRefreshBeforeLayout = true;
             return;
         }
         isRefreshing = true;
-        isPageRefreshing = true;
         if (mListener != null) {
             mListener.onRefresh();
         }
@@ -243,6 +243,17 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     }
 
     private void layoutChildren() {
+        post(mLayoutRunnable);
+    }
+
+    private Runnable mLayoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            layoutChildrenInRunnable();
+        }
+    };
+
+    private void layoutChildrenInRunnable() {
         int offset = (int) mOffset;
         int left, right, top, bottom;
 
