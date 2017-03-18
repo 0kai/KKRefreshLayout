@@ -1,32 +1,33 @@
 package net.z0kai.kkrefreshlayout_demo.pageview;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import com.bumptech.glide.Glide;
 
 import net.z0kai.kkrefreshlayout.IPageView;
 import net.z0kai.kkrefreshlayout_demo.R;
 
-/**
- * Created by Z_0Kai on 17/3/17.
- */
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
-public class LogoPageView extends LinearLayout implements IPageView {
+public class LoadingPageView extends LinearLayout implements IPageView {
 
-    ImageView logo;
+    @BindView(R.id.animateIv)
+    ImageView animateIv;
 
-    public LogoPageView(Context context) {
+    public LoadingPageView(Context context) {
         super(context);
-        LayoutInflater.from(getContext()).inflate(R.layout.kk_rl_logo_page, this);
+        LayoutInflater.from(getContext()).inflate(R.layout.kk_rl_loading_page, this);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         setLayoutParams(lp);
-
-        logo = (ImageView) findViewById(R.id.logo);
         setVisibility(GONE);
+        ButterKnife.bind(this);
     }
 
     @Override
@@ -36,12 +37,17 @@ public class LogoPageView extends LinearLayout implements IPageView {
 
     @Override
     public void show() {
+        animateIv.setAlpha(1.0f);
         setVisibility(VISIBLE);
-        ObjectAnimator.ofFloat(this, "scaleX", 1.0f, 2.0f, 1.0f).setDuration(1000).start();
+        Glide.with(getContext()).load(R.mipmap.page_loading).into(animateIv);
     }
 
     @Override
     public void hide() {
-        setVisibility(GONE);
+        animateIv.animate().alpha(0)
+                .setDuration(1000)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
     }
+
 }

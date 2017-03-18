@@ -6,6 +6,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
+import net.z0kai.kkrefreshlayout_demo.config.RefreshLayoutHConfig;
+
 public class RecyclerViewHActivity extends BaseActivity {
 
     private RecyclerView recyclerView;

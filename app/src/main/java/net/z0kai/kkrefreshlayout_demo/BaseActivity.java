@@ -9,11 +9,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import net.z0kai.kkrefreshlayout.FooterViewProvider;
-import net.z0kai.kkrefreshlayout.HeaderViewProvider;
 import net.z0kai.kkrefreshlayout.IFooterView;
 import net.z0kai.kkrefreshlayout.IHeaderView;
-import net.z0kai.kkrefreshlayout.KKRefreshLayoutConfig;
+import net.z0kai.kkrefreshlayout_demo.config.AppConfigs;
+import net.z0kai.kkrefreshlayout_demo.config.FooterViewProvider;
+import net.z0kai.kkrefreshlayout_demo.config.HeaderViewProvider;
+import net.z0kai.kkrefreshlayout_demo.config.KKRefreshLayoutConfig;
+import net.z0kai.kkrefreshlayout_demo.config.RefreshLayoutHConfig;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;

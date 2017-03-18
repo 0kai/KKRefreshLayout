@@ -3,10 +3,13 @@ package net.z0kai.kkrefreshlayout_demo;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import net.z0kai.kkrefreshlayout.IFooterView;
+import net.z0kai.kkrefreshlayout.IHeaderView;
 import net.z0kai.kkrefreshlayout.IPageView;
 import net.z0kai.kkrefreshlayout.KKRefreshLayout;
 import net.z0kai.kkrefreshlayout.KKRefreshListener;
-import net.z0kai.kkrefreshlayout_demo.pageview.LogoPageView;
+import net.z0kai.kkrefreshlayout_demo.config.KKRefreshLayoutConfig;
+import net.z0kai.kkrefreshlayout_demo.pageview.LoadingPageView;
 
 /**
  * Created by Z_0Kai on 16/9/30.
@@ -92,7 +95,17 @@ public class AppRefreshLayout extends KKRefreshLayout {
     }
 
     @Override
+    protected IHeaderView obtainHeaderView() {
+        return KKRefreshLayoutConfig.getHeaderViewProvider().get(getContext());
+    }
+
+    @Override
+    protected IFooterView obtainFooterView() {
+        return KKRefreshLayoutConfig.getFooterViewProvider().get(getContext());
+    }
+
+    @Override
     protected IPageView obtainPageView() {
-        return new LogoPageView(getContext());
+        return new LoadingPageView(getContext());
     }
 }

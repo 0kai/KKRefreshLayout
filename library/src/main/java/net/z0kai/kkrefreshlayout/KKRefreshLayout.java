@@ -348,9 +348,6 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     private void ensureHeaderView() {
         if (mHeaderView == null) {
             IHeaderView headerView = obtainHeaderView();
-            if (headerView == null) {
-                headerView = KKRefreshLayoutConfig.getHeaderViewProvider().get(getContext());
-            }
             setHeaderView(headerView);
         }
     }
@@ -358,9 +355,6 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     private void ensureFooterView() {
         if (mFooterView == null) {
             IFooterView footerView = obtainFooterView();
-            if (footerView == null) {
-                footerView = KKRefreshLayoutConfig.getFooterViewProvider().get(getContext());
-            }
             setFooterView(footerView);
         }
     }
