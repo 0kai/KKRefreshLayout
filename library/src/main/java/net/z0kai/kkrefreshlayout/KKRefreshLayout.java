@@ -21,6 +21,9 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 
+import net.z0kai.kkrefreshlayout.vertical.DefaultFooterView;
+import net.z0kai.kkrefreshlayout.vertical.DefaultHeaderView;
+
 /**
  * Created by Z_0Kai on 16/9/29.
  */
@@ -216,6 +219,9 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                 isRefreshing = false;
                 isPageRefreshing = false;
                 layoutChildren();
+                if (mTarget != null) {
+                    mTarget.requestLayout();
+                }
             } else {
                 long refreshTime = System.currentTimeMillis() - mStartRefreshTime;
                 if (refreshTime < MIN_REFRESH_TIME) {
@@ -243,17 +249,6 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     }
 
     private void layoutChildren() {
-        post(mLayoutRunnable);
-    }
-
-    private Runnable mLayoutRunnable = new Runnable() {
-        @Override
-        public void run() {
-            layoutChildrenInRunnable();
-        }
-    };
-
-    private void layoutChildrenInRunnable() {
         int offset = (int) mOffset;
         int left, right, top, bottom;
 
@@ -364,11 +359,11 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     }
 
     protected IHeaderView obtainHeaderView() {
-        return null;
+        return new DefaultHeaderView(getContext());
     }
 
     protected IFooterView obtainFooterView() {
-        return null;
+        return new DefaultFooterView(getContext());
     }
 
     private void bindEvent2Target() {
