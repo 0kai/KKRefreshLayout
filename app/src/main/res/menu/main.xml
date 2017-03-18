@@ -35,4 +35,8 @@
         android:id="@+id/menu_load_more_disable"
         android:title="LoadMore Disable"
         />
+    <item
+        android:id="@+id/menu_start_page_refresh"
+        android:title="Start Page Refresh"
+        />
 </menu>
