@@ -83,6 +83,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         mNestedScrollingChildHelper = new NestedScrollingChildHelper(this);
 
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+        setNestedScrollingEnabled(true);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.KKRefreshLayout);
         isVertical = typedArray.getInt(R.styleable.KKRefreshLayout_rlOrientation, 1) == 1;// default vertical
