@@ -1,5 +1,7 @@
 # KKRefreshLayout
 
+[ ![Download](https://api.bintray.com/packages/0kai/maven/KKRefreshLayout/images/download.svg) ](https://bintray.com/0kai/maven/KKRefreshLayout/_latestVersion)
+
 > 一个下拉刷新框架。已有很多开源刷新工具，但是还找到一个方便自定义，可扩展的。所以自己造个轮子。
 还是先写个中文文档就好了. [English Doc](README-EN.md)
 - 支持自定义下拉/上拉动画
@@ -13,14 +15,14 @@
 
 Gradle:
 ```groovy
-compile 'net.z0kai:kkrefreshlayout:0.2.1'
+compile 'net.z0kai:kkrefreshlayout:x.x.x'
 ```
 or Maven:
 ```xml
 <dependency>
   <groupId>net.z0kai</groupId>
   <artifactId>kkrefreshlayout</artifactId>
-  <version>0.2.1</version>
+  <version>x.x.x</version>
   <type>pom</type>
 </dependency>
 ```
@@ -43,39 +45,9 @@ or Maven:
 public class AppRefreshLayout extends KKRefreshLayout {
 
     private AppRefreshLayoutListener mListener;
-
-    public AppRefreshLayout(Context context) {
-        this(context, null);
-    }
-
-    public AppRefreshLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public void startRefresh() {
-        super.startRefresh();
-    }
-
-    public void startLoadMore() {
-        super.startLoadMore();
-    }
-
-    public void finishRefresh() {
-        super.finishRefresh();
-    }
-
-    public void finishLoadMore() {
-        super.finishLoadMore();
-    }
-
-    public void setRefreshEnable(boolean enable) {
-        super.setRefreshEnable(enable);
-    }
-
-    public void setLoadMoreEnable(boolean enable) {
-        super.setLoadMoreEnable(enable);
-    }
-
+    
+    // ... see demo
+    
     public interface AppRefreshLayoutListener {
         void onRefresh();
 
