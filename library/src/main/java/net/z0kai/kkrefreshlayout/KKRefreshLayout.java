@@ -70,8 +70,10 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         }
     };
 
-    private boolean isFling;
+    private boolean isFlingDown;
     private GestureDetector mGestureDetector;
+
+    private int mOverScrollMode = OVER_SCROLL_ALWAYS;
 
     public KKRefreshLayout(Context context) {
         this(context, null);
@@ -325,6 +327,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                 View child = getChildAt(i);
                 if (!(child instanceof IHeaderView) && !(child instanceof IFooterView) && !(child instanceof IPageView)) {
                     mTarget = child;
+                    mOverScrollMode = mTarget.getOverScrollMode();
                     bindEvent2Target();
                     break;
                 }
@@ -395,7 +398,10 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         mGestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                isFling = true;
+                if (velocityY > 0 && isLoadMoreEnable) {
+                    isFlingDown = true;
+                    disableOverScrollMode();
+                }
                 return super.onFling(e1, e2, velocityX, velocityY);
             }
         });
@@ -404,11 +410,14 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     private void onScrollEnd(final View view, int newState) {
         if (newState == 0) {
             if (mOffset == 0 && isLoadMoreEnable && !canChildScrollDown()) {
-                if (isFling) {
+                if (isFlingDown) {
                     ValueAnimator valueAnimator = ObjectAnimator.ofFloat(0, -mFooterView.autoLoadOnEndSize()).setDuration(500);
                     valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                         @Override
                         public void onAnimationUpdate(ValueAnimator animation) {
+                            if (!isLoadingMore || (float) animation.getAnimatedValue() <= -mFooterView.autoLoadOnEndSize()) {
+                                resetOverScrollMode();
+                            }
                             if (!isLoadingMore) {
                                 return;
                             }
@@ -433,8 +442,8 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
                 if (mListener != null) {
                     mListener.onLoadMore();
                 }
+                isFlingDown = false;
             }
-            isFling = false;
         }
     }
 
@@ -522,14 +531,17 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
     }
 
     private void moveChild(int offset, int offsetConsumed) {
+        resetOverScrollMode();
         // pull down
         if (offset < 0 && isRefreshEnable && !isLoadingMore && !canChildScrollUp()) {
+            disableOverScrollMode();
             offsetUp(-offset);
             layoutChildren();
         }
 
         // pull up
         if (offset > 0 && isLoadMoreEnable && !isRefreshing && !canChildScrollDown()) {
+            disableOverScrollMode();
             offsetDown(offset);
             if (-mOffset > mFooterView.getMaxSize()) {
                 mOffset = -mFooterView.getMaxSize();
@@ -546,6 +558,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
         // pull up, show no more
         if (offset > 0 && canChildScrollUp() && !isLoadMoreEnable) {
+            disableOverScrollMode();
             mFooterView.showNoMore();
             offsetDown(offset);
             if (-mOffset > mFooterView.getMaxSize()) {
@@ -556,6 +569,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
         // hide pull up item
         if (offsetConsumed < 0 && mOffset < 0) {
+            disableOverScrollMode();
             offsetDown(offsetConsumed);
             if (mOffset > 0) {
                 mOffset = 0;
@@ -741,6 +755,7 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         // Dispatch up our nested parent
         stopNestedScroll();
         mTouchPos = -1;
+        resetOverScrollMode();
     }
 
     @Override
@@ -811,13 +826,28 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
 
     @Override
     public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
-        isFling = true;
+        if (velocityY > 0 && isLoadMoreEnable) {
+            isFlingDown = true;
+            disableOverScrollMode();
+        }
         return mNestedScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
     }
 
     @Override
     public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
         return mNestedScrollingChildHelper.dispatchNestedPreFling(velocityX, velocityY);
+    }
+
+    private void disableOverScrollMode() {
+        if (mTarget != null) {
+            mTarget.setOverScrollMode(OVER_SCROLL_NEVER);
+        }
+    }
+
+    private void resetOverScrollMode() {
+        if (mTarget != null && !isFlingDown && mOffset == 0) {
+            mTarget.setOverScrollMode(mOverScrollMode);
+        }
     }
 
 }
