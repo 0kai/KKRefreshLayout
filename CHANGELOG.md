@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 0.2.3 *(2017-05-22)*
+----------------------------
+
+#### Features
+- add method `isRefreshing` and `isLoadingMore`
+
 Version 0.2.2 *(2017-04-20)*
 ----------------------------
 
