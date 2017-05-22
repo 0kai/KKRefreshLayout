@@ -251,6 +251,14 @@ public class KKRefreshLayout extends FrameLayout implements NestedScrollingParen
         mListener = listener;
     }
 
+    public boolean isRefreshing() {
+        return isRefreshing;
+    }
+
+    public boolean isLoadingMore() {
+        return isLoadingMore;
+    }
+
     private void layoutChildren() {
         int offset = (int) mOffset;
         int left, right, top, bottom;
