@@ -134,7 +134,7 @@ onLoadMore()
 ![](static/default-refresh.gif) ![](static/custom-refresh.gif) ![](static/horizontal-refresh.gif)
 
 ## 使用本库的APP
-[![](static/app/wozaijia.png)](http://android.myapp.com/myapp/detail.htm?apkName=com.buduobushao.android.webclient)
+![](static/app/wozaijia.png)
 
 ## Author
 Z0Kai, @0kai on GitHub, [blog-中文](http://www.0kai.net)
